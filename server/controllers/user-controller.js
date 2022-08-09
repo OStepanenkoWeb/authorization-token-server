@@ -1,4 +1,5 @@
 const userService = require('../service/user-service')
+const MAX_AGE = 2592000000 // 30d * 24h * 60m * 60s * 1000ms
 
 class UserController {
     async registration(req, res, next) {
@@ -7,13 +8,13 @@ class UserController {
             const userData = await userService.registration(email, password)
 
             res.cookie('refreshToken', userData.refreshToken, {
-                maxAge: 30 * 24 * 60 * 60 * 1000,
+                maxAge: MAX_AGE,
                 httpOnly: true
             })
 
             return res.json(userData)
         } catch (e) {
-            console.error('Error in registration controller: ', e)
+            console.error('Error registration in UserController: ', e)
         }
     }
 

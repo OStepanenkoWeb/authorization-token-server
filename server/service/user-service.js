@@ -13,14 +13,17 @@ class UserService {
         if (candidate) {
             throw new Error('The user with the specified email already exists ')
         }
+
         const hashPassword = await bcrypt.hash(password, 3)
         const activationLink = uuid.v4()
         const user = await UserModel.create({ email, password:hashPassword, activationLink })
 
-        await mailService.sendActivationMail(email, activationLink)
+        const activationUrl = `${process.env.API_URL}/api/activate/${activationLink}`
+
+        await mailService.sendActivationMail(email, activationUrl)
 
         const userData = new userDto(user)
-        console.log(userData)
+
         const tokens = tokenService.generateToken({...userData})
 
         await tokenService.saveToken(userData.id, tokens.refreshToken)

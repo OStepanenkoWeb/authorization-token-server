@@ -18,9 +18,9 @@ const startApp = async () => {
         await mongoose.connect(process.env.MONGODB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true
-        }, ()=>console.log('Mongo---'))
+        }, ()=>console.info(`MongoDB run is success on ${process.env.MONGODB_URL}`))
 
-        app.listen(PORT, () => console.log(`Server run is success on port = ${PORT}`))
+        app.listen(PORT, () => console.info(`Server run is success on port = ${PORT}`))
 
     } catch (e) {
         console.error(e)

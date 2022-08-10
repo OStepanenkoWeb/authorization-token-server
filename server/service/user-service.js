@@ -35,6 +35,19 @@ class UserService {
 
     }
 
+    async activate(activationLink) {
+        const user = await UserModel.findOne({ activationLink } )
+
+        if(!user) {
+            throw new Error('The user with the specified link does not exist')
+        }
+
+        user.isActivated = true
+
+        await user.save()
+
+    }
+
 }
 
 module.exports = new UserService()

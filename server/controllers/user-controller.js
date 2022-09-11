@@ -1,9 +1,17 @@
 const userService = require('../service/user-service')
+const { validationResult } = require( 'express-validator' )
+const {request} = require("express");
+const ApiError = require('../exeptions/api-error')
+
 const MAX_AGE = 2592000000 // 30d * 24h * 60m * 60s * 1000ms
 
 class UserController {
     async registration(req, res, next) {
         try {
+            const errors = validationResult(req)
+            if (!errors.isEmpty()) {
+                return next(ApiError.BadRequest('Validation error', errors.array()))
+            }
             const { email, password} = req.body
             const userData = await userService.registration(email, password)
 
@@ -14,23 +22,38 @@ class UserController {
 
             return res.json(userData)
         } catch (e) {
-            console.error('Error registration in UserController: ', e)
+            next(e)
         }
     }
 
     async login(req, res, next) {
         try {
+            const { email, password } = req.body
+            const userData = await  userService.login(email, password)
 
+            res.cookie('refreshToken', userData.refreshToken, {
+                maxAge: MAX_AGE,
+                httpOnly: true
+            })
+
+            return res.json(userData)
         } catch (e) {
-
+            next(e)
         }
     }
 
     async logout(req, res, next) {
         try {
+            const { refreshToken } = req.cookies
+            await userService.logout(refreshToken)
 
+            res.clearCookie('refreshToken')
+
+            return res.status(200).json({
+                status: "logout success"
+            });
         } catch (e) {
-
+            next(e)
         }
     }
 
@@ -43,23 +66,34 @@ class UserController {
 
             return res.redirect(process.env.CLIENT_URL)
         } catch (e) {
-            console.error('Error in activate method:', e)
+            next(e)
         }
     }
 
     async refresh(req, res, next) {
         try {
+            const { refreshToken } = req.cookies
+            const userData = await  userService.refresh(refreshToken)
+
+            res.cookie('refreshToken', userData.refreshToken, {
+                maxAge: MAX_AGE,
+                httpOnly: true
+            })
+
+            return res.json(userData)
 
         } catch (e) {
-
+            next(e)
         }
     }
 
     async getUser(req, res, next) {
         try {
-            res.json(['123', '4343'])
+            const users = await userService.getAllUsers()
+
+            return res.json(users)
         } catch (e) {
-          console.error(e)
+            next(e)
         }
     }
 

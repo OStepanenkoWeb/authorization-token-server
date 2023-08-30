@@ -11,6 +11,9 @@ class MailService {
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASSWORD
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         })
     }
@@ -20,13 +23,15 @@ class MailService {
             await this.transporter.sendMail( {
                 from: process.env.SMTP_USER,
                 to,
-                subject: `Service account activation in ${process.env.API_URL}`,
+                subject: `Активация учетной записи на сервисе ${process.env.API_URL}`,
                 text: '',
                 html:
                     `
                     <div>
-                        <h1>To activate follow the link</h1>
-                        <a href="${link}">${link}</a>
+                        <h3>Благодарим Вас за регистрацию в нашем сервисе.</h3>
+                        <p>Для подтверждения регистрации перейдите по ссылке:
+                            <a href="${link}">${link}</a>
+                        </p>
                     </div>
                 `
             })

@@ -11,7 +11,10 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
+app.use(cors({
+    origin: process.env.ORIGIN || 'https://2504060-yo82697.twc1.net/',
+    credentials: true
+}))
 app.use('/api', router)
 app.use(errorMiddleware)
 
